@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SeatPlanResource\Pages;
+use App\Filament\Resources\SeatPlanResource\Pages\EditSeats;
 use App\Filament\Resources\SeatPlanResource\RelationManagers;
 use App\Filament\Resources\SeatPlanResource\RelationManagers\SeatsRelationManager;
 use App\Models\SeatPlan;
@@ -20,6 +21,8 @@ class SeatPlanResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?int $navigationSort = 2;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -29,18 +32,19 @@ class SeatPlanResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('subject')
                     ->required(),
-                Forms\Components\TextInput::make('columns')
-                    ->required()
-                    ->numeric()
-                    ->minValue(1)
-                    ->default(10)
-                    ->disabledOn('edit'),
                 Forms\Components\TextInput::make('rows')
                     ->required()
                     ->numeric()
                     ->minValue(1)
                     ->default(5)
                     ->disabledOn('edit'),
+                Forms\Components\TextInput::make('columns')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1)
+                    ->default(10)
+                    ->disabledOn('edit'),
+                
             ]);
     }
 
@@ -74,7 +78,11 @@ class SeatPlanResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label('Edit details'),
+                Tables\Actions\Action::make('edit-seats')
+                    ->icon('heroicon-m-cursor-arrow-rays')
+                    ->url(fn (SeatPlan $record): string => EditSeats::getUrl(['record' => $record]))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -96,6 +104,7 @@ class SeatPlanResource extends Resource
             'index' => Pages\ListSeatPlans::route('/'),
             'create' => Pages\CreateSeatPlan::route('/create'),
             'edit' => Pages\EditSeatPlan::route('/{record}/edit'),
+            'edit-seats' => Pages\EditSeats::route('/{record}/edit-seats'),
         ];
     }
 }
