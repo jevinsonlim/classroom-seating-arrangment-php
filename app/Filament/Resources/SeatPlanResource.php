@@ -33,12 +33,14 @@ class SeatPlanResource extends Resource
                     ->required()
                     ->numeric()
                     ->minValue(1)
-                    ->default(10),
+                    ->default(10)
+                    ->disabledOn('edit'),
                 Forms\Components\TextInput::make('rows')
                     ->required()
                     ->numeric()
                     ->minValue(1)
-                    ->default(5),
+                    ->default(5)
+                    ->disabledOn('edit'),
             ]);
     }
 

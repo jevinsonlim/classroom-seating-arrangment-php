@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SectionResource\RelationManagers;
 
+use App\Filament\Resources\SeatPlanResource\Pages\EditSeatPlan;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
@@ -61,7 +62,8 @@ class SeatPlansRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->url(fn (Model $record): string => EditSeatPlan::getUrl(['record' => $record])),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
