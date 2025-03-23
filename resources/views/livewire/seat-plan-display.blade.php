@@ -1,54 +1,97 @@
-<div class="grid grid-cols-{{ $columns }} gap-2">
-    @for ($row = 1; $row <= $rows; $row++)
-        @for ($column = 1; $column <= $columns; $column++)
-            @php
-                $key = $row . '-' . $column;
-                $seat = $seats[$key] ?? null;
-            @endphp
+<div>
+    <div style="display: grid; grid-template-columns: repeat({{ $columns }}, 1fr); gap: 8px;">
+        @for ($row = 1; $row <= $rows; $row++)
+            @for ($column = 1; $column <= $columns; $column++)
+                @php
+                    $key = $row . '-' . $column;
+                    $seat = $seats[$key] ?? null;
+                    $isSelected = in_array($key, $selectedSeats);
+                @endphp
 
-            <div
-                class="border p-2 rounded relative {{ $seat && $seat->student ? 'bg-blue-200 cursor-move' : 'bg-gray-100' }}"
-                @if ($seat && $seat->student)
-                    draggable="true"
-                    ondragstart="dragStart(event, {{ $seat->row }}, {{ $seat->column }})"
-                    ondragover="allowDrop(event)"
-                    ondrop="drop(event, {{ $row }}, {{ $column }})"
-                @endif
-                data-row="{{ $row }}"
-                data-column="{{ $column }}"
-            >
-                @if ($seat && $seat->student)
-                    {{ $seat->student->name }}
-                @else
-                    Seat {{ $row }}-{{ $column }}
-                @endif
-            </div>
+                <div
+                    style="
+                        border: 1px solid {{ $isSelected ? 'blue' : 'var(--border-color, #ddd)' }};
+                        padding: 16px;
+                        border-radius: 4px;
+                        position: relative;
+                        background-color: {{ $seat && $seat->student ? 'var(--student-seat-bg, #e0f2fe)' : 'var(--seat-bg, #f3f4f6)' }};
+                        cursor: pointer;
+                        color: var(--text-color, #333);
+                        user-select: none;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 80px;
+                        min-height: 80px;
+                        text-align: center;
+                    "
+                    wire:click="selectSeat({{ $row }}, {{ $column }})"
+                >
+                    <x-filament::icon-button
+                        icon="heroicon-o-pencil-square"
+                        wire:click.stop="editSeat({{ $row }}, {{ $column }})"
+                        style="position: absolute; top: 4px; left: 4px;"
+                        size="sm"
+                    />
+
+                    <x-filament::icon-button
+                        icon="heroicon-o-trash"
+                        wire:click.stop="clearSeat({{ $row }}, {{ $column }})"
+                        style="position: absolute; top: 4px; right: 4px;"
+                        size="sm"
+                    />
+
+                    {{ $seat->student ?? '' }}
+                </div>
+            @endfor
         @endfor
-    @endfor
+    </div>
+
+    <x-filament::modal id="edit-seat-modal" width="md">
+        <x-slot name="heading">
+            Edit Student
+        </x-slot>
+
+        <form wire:submit="updateSeatStudent">
+            <x-filament::input wire:model="editingStudent" label="Student Name" />
+
+            <x-slot name="footerActions">
+                <x-filament::button wire:click="updateSeatStudent">
+                    Save
+                </x-filament::button>
+                <x-filament::button color="secondary" x-on:click="$dispatch('close-modal', { id: 'edit-seat-modal' })">
+                    Cancel
+                </x-filament::button>
+            </x-slot>
+        </form>
+    </x-filament::modal>
+
+    <script>
+        document.addEventListener('livewire:load', function () {
+            // Dark mode support
+            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+            function updateColors(event) {
+                const isDarkMode = event.matches;
+                const divs = document.querySelectorAll('[data-row][data-column]');
+
+                divs.forEach(div => {
+                    if (isDarkMode) {
+                        div.style.setProperty('--student-seat-bg', '#2563eb');
+                        div.style.setProperty('--seat-bg', '#374151');
+                        div.style.setProperty('--text-color', '#d1d5db');
+                        div.style.setProperty('--border-color', '#4b5563');
+                    } else {
+                        div.style.setProperty('--student-seat-bg', '#e0f2fe');
+                        div.style.setProperty('--seat-bg', '#f3f4f6');
+                        div.style.setProperty('--text-color', '#333');
+                        div.style.setProperty('--border-color', '#ddd');
+                    }
+                });
+            }
+
+            updateColors(darkModeMediaQuery);
+            darkModeMediaQuery.addEventListener('change', updateColors);
+        });
+    </script>
 </div>
-
-<script>
-    let draggedSeat = null;
-    let draggedRow = null;
-    let draggedColumn = null;
-
-    function allowDrop(ev) {
-        ev.preventDefault();
-    }
-
-    function dragStart(ev, row, column) {
-        draggedSeat = ev.target;
-        draggedRow = row;
-        draggedColumn = column;
-    }
-
-    function drop(ev, row, column) {
-        ev.preventDefault();
-        if (draggedSeat) {
-            @this.updateSeatPosition(draggedRow, draggedColumn, row, column);
-            draggedSeat = null;
-            draggedRow = null;
-            draggedColumn = null;
-        }
-    }
-</script>
