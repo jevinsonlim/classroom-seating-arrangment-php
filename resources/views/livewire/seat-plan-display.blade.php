@@ -70,7 +70,8 @@
                 <x-filament::button wire:click="updateSeatStudent">
                     Save
                 </x-filament::button>
-                <x-filament::button color="secondary" x-on:click="$dispatch('close-modal', { id: 'edit-seat-modal' })">
+                <x-filament::button color="secondary" x-on:click="$dispatch('close-modal', { id: 'edit-seat-modal' })"
+                 class="!text-gray-950">
                     Cancel
                 </x-filament::button>
             </x-slot>

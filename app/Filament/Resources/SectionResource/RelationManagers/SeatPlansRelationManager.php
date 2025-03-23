@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\SectionResource\RelationManagers;
 
 use App\Filament\Resources\SeatPlanResource\Pages\EditSeatPlan;
+use App\Filament\Resources\SeatPlanResource\Pages\EditSeats;
+use App\Models\SeatPlan;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
@@ -55,7 +57,7 @@ class SeatPlansRelationManager extends RelationManager
                             ...$data,
                             'section_id' => $this->getOwnerRecord()->id
                         ]);
-                    
+
                         $record->prepopulateSeats();
 
                         return $record;
@@ -63,13 +65,22 @@ class SeatPlansRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->url(fn (Model $record): string => EditSeatPlan::getUrl(['record' => $record])),
+                    ->label('Edit details')
+                    ->url(fn(Model $record): string => EditSeatPlan::getUrl(['record' => $record])),
+                Tables\Actions\Action::make('edit-seats')
+                    ->icon('heroicon-m-cursor-arrow-rays')
+                    ->url(fn (SeatPlan $record): string => EditSeats::getUrl(['record' => $record])),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public function isReadOnly(): bool
+    {
+        return false;
     }
 }

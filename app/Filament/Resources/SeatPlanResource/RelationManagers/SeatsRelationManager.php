@@ -27,6 +27,10 @@ class SeatsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->orderBy('row')
+                    ->orderBy('column');
+            })
             ->recordTitleAttribute('student')
             ->columns([
                 Tables\Columns\TextColumn::make('row'),

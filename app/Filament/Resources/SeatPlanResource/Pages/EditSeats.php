@@ -9,6 +9,7 @@ use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
 class EditSeats extends Page
@@ -22,7 +23,10 @@ class EditSeats extends Page
     protected function getHeaderActions(): array
     {
         return [
-
+            Action::make('edit-details')
+                ->label('Edit details')
+                ->icon('heroicon-m-pencil-square')
+                ->url(fn(Model $record): string => EditSeatPlan::getUrl(['record' => $record])),
             ActionGroup::make([
                 Action::make('addRowStart')
                     ->label('Add Row (Start)')

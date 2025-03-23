@@ -54,7 +54,7 @@ class SectionResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -71,6 +71,7 @@ class SectionResource extends Resource
         return [
             'index' => Pages\ListSections::route('/'),
             'create' => Pages\CreateSection::route('/create'),
+            'view' => Pages\ViewSection::route('/{record}'),
             'edit' => Pages\EditSection::route('/{record}/edit'),
         ];
     }
