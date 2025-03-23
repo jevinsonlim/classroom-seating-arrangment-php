@@ -1,4 +1,6 @@
 <div>
+    <p style="text-align: center; margin-bottom: 10px;">Select two seats to swap assigned students.</p>
+
     <div style="display: grid; grid-template-columns: repeat({{ $columns }}, 1fr); gap: 8px;">
         @for ($row = 1; $row <= $rows; $row++)
             @for ($column = 1; $column <= $columns; $column++)
@@ -27,19 +29,23 @@
                     "
                     wire:click="selectSeat({{ $row }}, {{ $column }})"
                 >
-                    <x-filament::icon-button
-                        icon="heroicon-o-pencil-square"
-                        wire:click.stop="editSeat({{ $row }}, {{ $column }})"
-                        style="position: absolute; top: 4px; left: 4px;"
-                        size="sm"
-                    />
+                    <div class="seat-buttons" style="position: absolute; top: 4px; left: 4px; right: 4px;">
+                        <x-filament::icon-button
+                            icon="heroicon-o-pencil-square"
+                            wire:click.stop="editSeat({{ $row }}, {{ $column }})"
+                            style="position: absolute; left: 0;"
+                            size="sm"
+                            color="info"
+                        />
 
-                    <x-filament::icon-button
-                        icon="heroicon-o-trash"
-                        wire:click.stop="clearSeat({{ $row }}, {{ $column }})"
-                        style="position: absolute; top: 4px; right: 4px;"
-                        size="sm"
-                    />
+                        <x-filament::icon-button
+                            icon="heroicon-o-x-circle"
+                            wire:click.stop="clearSeat({{ $row }}, {{ $column }})"
+                            style="position: absolute; right: 0;"
+                            size="sm"
+                            color="danger"
+                        />
+                    </div>
 
                     {{ $seat->student ?? '' }}
                 </div>
@@ -49,13 +55,13 @@
 
     <x-filament::modal id="edit-seat-modal" width="md">
         <x-slot name="heading">
-            Edit Student
+            Edit Seat
         </x-slot>
 
         <form wire:submit="updateSeatStudent">
             <x-filament::input wire:model="editingStudent" label="Student Name" />
 
-            <x-slot name="footerActions">
+            <x-slot name="footer">
                 <x-filament::button wire:click="updateSeatStudent">
                     Save
                 </x-filament::button>
@@ -77,8 +83,8 @@
 
                 divs.forEach(div => {
                     if (isDarkMode) {
-                        div.style.setProperty('--student-seat-bg', '#2563eb');
-                        div.style.setProperty('--seat-bg', '#374151');
+                        div.style.setProperty('--student-seat-bg', '#374151');
+                        div.style.setProperty('--seat-bg', '#1f2937');
                         div.style.setProperty('--text-color', '#d1d5db');
                         div.style.setProperty('--border-color', '#4b5563');
                     } else {

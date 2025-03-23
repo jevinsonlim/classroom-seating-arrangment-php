@@ -23,6 +23,8 @@ class SeatPlanDisplay extends Component implements HasForms
     public $editingSeatId = null;
     public $editingStudent = '';
 
+    protected $listeners = ['refreshSeats' => 'refreshSeats']; 
+
     public function mount(SeatPlan $seatPlan)
     {
         $this->seatPlan = $seatPlan;
@@ -32,6 +34,17 @@ class SeatPlanDisplay extends Component implements HasForms
         $this->rows = $seatPlan->rows;
         $this->columns = $seatPlan->columns;
     }
+
+    public function refreshSeats()
+    {
+        $this->seats = $this->seatPlan->seats->keyBy(function ($seat) {
+            return $seat->row . '-' . $seat->column;
+        });
+        $this->rows = $this->seatPlan->rows;
+        $this->columns = $this->seatPlan->columns;
+        $this->render();
+    }
+
 
     public function selectSeat($row, $column)
     {
@@ -80,6 +93,7 @@ class SeatPlanDisplay extends Component implements HasForms
 
     public function editSeat($row, $column)
     {
+        Log::debug($this->seats);
         $key = $row . '-' . $column;
         $seat = $this->seats[$key] ?? null;
 
@@ -103,9 +117,6 @@ class SeatPlanDisplay extends Component implements HasForms
 
     public function updateSeatStudent()
     {
-        Log::debug($this->editingSeatId);
-        Log::debug($this->editingStudent);
-
         if ($this->editingSeatId) {
             $seat = Seat::find($this->editingSeatId);
             if ($seat) {

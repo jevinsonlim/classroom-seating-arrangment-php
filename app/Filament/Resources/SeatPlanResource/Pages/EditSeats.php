@@ -3,12 +3,13 @@
 namespace App\Filament\Resources\SeatPlanResource\Pages;
 
 use App\Filament\Resources\SeatPlanResource;
+use App\Models\Seat;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
-use Filament\Support\Enums\ActionSize;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Log;
 
 class EditSeats extends Page
 {
@@ -24,20 +25,140 @@ class EditSeats extends Page
 
             ActionGroup::make([
                 Action::make('addRowStart')
-                    ->label('Add Row (Start)'),
+                    ->label('Add Row (Start)')
+                    ->action(function (EditSeats $livewire) {
+                        Seat::where('seat_plan_id', $livewire->record->id)
+                            ->increment('row');
+
+                        $livewire->record->increment('rows');
+
+                        for ($j=1; $j <= $livewire->record->columns; $j++) { 
+                            $livewire->record->seats()->create([
+                                'row' => 1,
+                                'column' => $j
+                            ]);
+                        }
+
+                        $livewire->dispatch('refreshSeats');
+                    }),
                 Action::make('addRowEnd')
-                    ->label('Add Row (End)'),
+                    ->label('Add Row (End)')
+                    ->action(function (EditSeats $livewire) {
+                        $livewire->record->increment('rows');
+
+                        for ($j=1; $j <= $livewire->record->columns; $j++) { 
+                            $livewire->record->seats()->create([
+                                'row' => $livewire->record->rows,
+                                'column' => $j
+                            ]);
+                        }
+
+                        $livewire->dispatch('refreshSeats');
+                    }),
                 Action::make('addColumnStart')
-                    ->label('Add Column (Start)'),
+                    ->label('Add Column (Start)')
+                    ->action(function (EditSeats $livewire) {
+                        Seat::where('seat_plan_id', $livewire->record->id)
+                            ->increment('column');
+                        $livewire->record->increment('columns');
+
+                        for ($j=1; $j <= $livewire->record->rows; $j++) { 
+                            $livewire->record->seats()->create([
+                                'row' => $j,
+                                'column' => 1
+                            ]);
+                        }
+
+                        $livewire->dispatch('refreshSeats');
+                    }),
                 Action::make('addColumnEnd')
                     ->label('Add Column (End)')
+                    ->action(function (EditSeats $livewire) {
+                        $livewire->record->increment('columns');
+
+                        for ($j=1; $j <= $livewire->record->columns; $j++) { 
+                            $livewire->record->seats()->create([
+                                'row' => $j,
+                                'column' => $livewire->record->columns
+                            ]);
+                        }
+
+                        $livewire->dispatch('refreshSeats');
+                    }),
+                Action::make('removeRowStart')
+                    ->label('Remove Row (Start)')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function (EditSeats $livewire) {
+                        if ($livewire->record->rows > 1) {
+                            $livewire->record->decrement('rows');
+                            Seat::where('seat_plan_id', $livewire->record->id)
+                                ->where('row', 1)
+                                ->delete();
+
+                            Seat::where('seat_plan_id', $livewire->record->id)
+                                ->decrement('row');
+
+                            $livewire->dispatch('refreshSeats');
+                        }
+                    }),
+                Action::make('removeRowEnd')
+                    ->label('Remove Row (End)')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function (EditSeats $livewire) {
+                        if ($livewire->record->rows > 1) {
+                            $livewire->record->decrement('rows');
+                            Seat::where('seat_plan_id', $livewire->record->id)
+                                ->where('row', $livewire->record->rows + 1)
+                                ->delete();
+
+                            $livewire->dispatch('refreshSeats');
+                        }
+                    }),
+                Action::make('removeColumnStart')
+                    ->label('Remove Column (Start)')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function (EditSeats $livewire) {
+                        if ($livewire->record->columns > 1) {
+                            $livewire->record->decrement('columns');
+                            Seat::where('seat_plan_id', $livewire->record->id)
+                                ->where('column', 1)
+                                ->delete();
+
+                            Seat::where('seat_plan_id', $livewire->record->id)
+                                ->decrement('column');
+
+                            $livewire->dispatch('refreshSeats');
+                        }
+                    }),
+                Action::make('removeColumnEnd')
+                    ->label('Remove Column (End)')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->action(function (EditSeats $livewire) {
+                        if ($livewire->record->columns > 1) {
+                            $livewire->record->decrement('columns');
+                            Seat::where('seat_plan_id', $livewire->record->id)
+                                ->where('column', $livewire->record->columns + 1)
+                                ->delete();
+
+                            $livewire->dispatch('refreshSeats');
+                        }
+                    }),
             ])
                 ->label('Edit capacity')
                 ->icon('heroicon-m-ellipsis-vertical')
                 ->color('primary')
                 ->button(),
             Action::make('clearSeats')
-                ->color('danger'),
+                ->color('danger')
+                ->requiresConfirmation()
+                ->action(function (EditSeats $livewire) {
+                    $livewire->record->seats()->update(['student' => null]);
+                    $livewire->dispatch('refreshSeats');
+                }),
         ];
     }
 
@@ -49,5 +170,5 @@ class EditSeats extends Page
     public function getTitle(): string | Htmlable
     {
         return 'Edit Seats of ' . $this->getRecord()->section->name . ' - ' . $this->getRecord()->subject;
-    }    
+    }
 }
