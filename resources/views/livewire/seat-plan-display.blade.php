@@ -1,7 +1,7 @@
 <div>
     <p style="text-align: center; margin-bottom: 10px;">Select two seats to swap assigned students.</p>
 
-    <div style="overflow-x: auto; display: flex; justify-content: center;">
+    <div style="overflow-x: auto; display: flex;">
         <div style="display: grid; grid-template-rows: repeat({{ $rows }}, auto); grid-template-columns: repeat({{ $columns }}, 120px); gap: 10px; min-width: max-content;">
             @for ($row = 1; $row <= $rows; $row++)
                 @for ($column = 1; $column <= $columns; $column++)
@@ -41,17 +41,27 @@
                                 color="info"
                             />
 
-                            <x-filament::icon-button
-                                icon="heroicon-o-x-circle"
-                                wire:click.stop="clearSeat({{ $row }}, {{ $column }})"
-                                style="position: absolute; right: 0;"
-                                size="sm"
-                                color="danger"
-                            />
+                            @if($seat && $seat->student)
+                                <x-filament::icon-button
+                                    icon="heroicon-o-x-circle"
+                                    wire:click.stop="clearSeat({{ $row }}, {{ $column }})"
+                                    style="position: absolute; right: 0;"
+                                    size="sm"
+                                    color="danger"
+                                />
+                            @endif
                         </div>
                         <span style="font-size: {{ strlen($seat->student ?? '') > 7 ? '12px' : '16px' }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             {{ $seat->student ?? '' }}
                         </span>
+                        @if($seat && $seat->is_occupied_on_template)
+                            <div style="position: absolute; bottom: 6px; left: 6px;">
+                                <x-filament::icon-button icon="heroicon-o-map-pin" size="sm" color="success" disabled/>
+                            </div>
+                        @endif
+                        <div style="position: absolute; bottom: 6px; right: 6px; font-size: 12px; color: gray;">
+                            {{ $row }}-{{ $column }}
+                        </div>
                     </div>
                 @endfor
             @endfor

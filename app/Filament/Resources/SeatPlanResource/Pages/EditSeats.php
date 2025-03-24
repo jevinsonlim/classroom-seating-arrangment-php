@@ -4,6 +4,7 @@ namespace App\Filament\Resources\SeatPlanResource\Pages;
 
 use App\Filament\Resources\SeatPlanResource;
 use App\Models\Seat;
+use App\Models\SeatPlanLog;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
@@ -43,6 +44,11 @@ class EditSeats extends Page
                             ]);
                         }
 
+                        SeatPlanLog::create([
+                            'seat_plan_id' => $livewire->record->id,
+                            'details' => 'New row inserted at the start'
+                        ]);
+
                         $livewire->dispatch('refreshSeats');
                     }),
                 Action::make('addRowEnd')
@@ -56,6 +62,11 @@ class EditSeats extends Page
                                 'column' => $j
                             ]);
                         }
+
+                        SeatPlanLog::create([
+                            'seat_plan_id' => $livewire->record->id,
+                            'details' => 'New row added'
+                        ]);
 
                         $livewire->dispatch('refreshSeats');
                     }),
@@ -73,6 +84,11 @@ class EditSeats extends Page
                             ]);
                         }
 
+                        SeatPlanLog::create([
+                            'seat_plan_id' => $livewire->record->id,
+                            'details' => 'New column inserted at the start'
+                        ]);
+
                         $livewire->dispatch('refreshSeats');
                     }),
                 Action::make('addColumnEnd')
@@ -86,6 +102,11 @@ class EditSeats extends Page
                                 'column' => $livewire->record->columns
                             ]);
                         }
+
+                        SeatPlanLog::create([
+                            'seat_plan_id' => $livewire->record->id,
+                            'details' => 'New column added'
+                        ]);
 
                         $livewire->dispatch('refreshSeats');
                     }),
@@ -103,6 +124,11 @@ class EditSeats extends Page
                             Seat::where('seat_plan_id', $livewire->record->id)
                                 ->decrement('row');
 
+                            SeatPlanLog::create([
+                                'seat_plan_id' => $livewire->record->id,
+                                'details' => 'First row was removed'
+                            ]);
+
                             $livewire->dispatch('refreshSeats');
                         }
                     }),
@@ -117,6 +143,11 @@ class EditSeats extends Page
                                 ->where('row', $livewire->record->rows + 1)
                                 ->delete();
 
+                            SeatPlanLog::create([
+                                'seat_plan_id' => $livewire->record->id,
+                                'details' => 'Last row was removed'
+                            ]);
+    
                             $livewire->dispatch('refreshSeats');
                         }
                     }),
@@ -134,6 +165,11 @@ class EditSeats extends Page
                             Seat::where('seat_plan_id', $livewire->record->id)
                                 ->decrement('column');
 
+                            SeatPlanLog::create([
+                                'seat_plan_id' => $livewire->record->id,
+                                'details' => 'First column was removed'
+                            ]);
+
                             $livewire->dispatch('refreshSeats');
                         }
                     }),
@@ -148,6 +184,11 @@ class EditSeats extends Page
                                 ->where('column', $livewire->record->columns + 1)
                                 ->delete();
 
+                            SeatPlanLog::create([
+                                'seat_plan_id' => $livewire->record->id,
+                                'details' => 'Last column was removed'
+                            ]);
+
                             $livewire->dispatch('refreshSeats');
                         }
                     }),
@@ -161,6 +202,12 @@ class EditSeats extends Page
                 ->requiresConfirmation()
                 ->action(function (EditSeats $livewire) {
                     $livewire->record->seats()->update(['student' => null]);
+
+                    SeatPlanLog::create([
+                        'seat_plan_id' => $livewire->record->id,
+                        'details' => 'All seats were cleared'
+                    ]);
+
                     $livewire->dispatch('refreshSeats');
                 }),
         ];

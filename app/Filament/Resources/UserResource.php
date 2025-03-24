@@ -30,7 +30,8 @@ class UserResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required(),
+                    ->required()
+                    ->visibleOn('create'),
             ]);
     }
 

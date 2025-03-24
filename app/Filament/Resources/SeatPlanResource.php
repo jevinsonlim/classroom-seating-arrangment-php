@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\SeatPlanResource\Pages;
 use App\Filament\Resources\SeatPlanResource\Pages\EditSeats;
 use App\Filament\Resources\SeatPlanResource\RelationManagers;
+use App\Filament\Resources\SeatPlanResource\RelationManagers\LogsRelationManager;
 use App\Filament\Resources\SeatPlanResource\RelationManagers\SeatsRelationManager;
 use App\Models\SeatPlan;
 use Filament\Forms;
@@ -94,7 +95,8 @@ class SeatPlanResource extends Resource
     public static function getRelations(): array
     {
         return [
-            SeatsRelationManager::class
+            SeatsRelationManager::class,
+            LogsRelationManager::class
         ];
     }
 

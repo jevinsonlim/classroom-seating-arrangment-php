@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('section_id')
                 ->references('id')
                 ->on('sections')
-                ->constrained();
+                ->cascadeOnDelete();
             $table->string('subject');
             $table->integer('columns');
             $table->integer('rows');

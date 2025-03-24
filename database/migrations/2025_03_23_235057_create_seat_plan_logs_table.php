@@ -11,16 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('seats', function (Blueprint $table) {
+        Schema::create('seat_plan_logs', function (Blueprint $table) {
             $table->id();
+            $table->string('details');
             $table->foreignId('seat_plan_id')
                 ->references('id')
-                ->on('sections')
+                ->on('seat_plans')
                 ->cascadeOnDelete();
-            $table->string('student')->nullable();
-            $table->integer('row');
-            $table->integer('column');
-            $table->boolean('is_occupied_on_template')->default(false);
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('seats');
+        Schema::dropIfExists('seat_plan_logs');
     }
 };

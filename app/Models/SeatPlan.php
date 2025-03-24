@@ -18,6 +18,12 @@ class SeatPlan extends Model
         return $this->hasMany(Seat::class);
     }
 
+    public function logs() : HasMany
+    {
+        return $this->hasMany(SeatPlanLog::class);
+    }
+
+
     public function prepopulateSeats($template = null): void
     {
         for ($i=1; $i <= $this->rows; $i++) { 

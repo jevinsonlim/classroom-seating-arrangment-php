@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Seat;
 use App\Models\SeatPlan;
+use App\Models\SeatPlanLog;
 use Livewire\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -89,6 +90,20 @@ class SeatPlanDisplay extends Component implements HasForms
         $this->seats = collect($this->seats)->keyBy(function ($seat) {
             return $seat->row . '-' . $seat->column;
         });
+
+        if ($seat1->student) {
+            SeatPlanLog::create([
+                'seat_plan_id' => $seat1->seat_plan_id,
+                'details' => $seat1->student . ' moved to seat ' . $seat1->row . '-' . $seat1->column,
+            ]);
+        }
+
+        if ($seat2->student) {
+            SeatPlanLog::create([
+                'seat_plan_id' => $seat2->seat_plan_id,
+                'details' => $seat2->student . ' moved to seat ' . $seat2->row . '-' . $seat2->column,
+            ]);
+        }
     }
 
     public function editSeat($row, $column)
@@ -108,9 +123,17 @@ class SeatPlanDisplay extends Component implements HasForms
     {
         $key = $row . '-' . $column;
         $seat = $this->seats[$key] ?? null;
+        $studentName = $seat->student;
+
         if ($seat) {
             $seat->student = null;
             $seat->save();
+
+            SeatPlanLog::create([
+                'seat_plan_id' => $seat->seat_plan_id,
+                'details' => $studentName . ' removed from seat ' . $seat->row . '-' . $seat->column,
+            ]);
+
             $this->seats[$key] = $seat;
         }
     }
@@ -122,6 +145,12 @@ class SeatPlanDisplay extends Component implements HasForms
             if ($seat) {
                 $seat->student = $this->editingStudent;
                 $seat->save();
+
+                SeatPlanLog::create([
+                    'seat_plan_id' => $seat->seat_plan_id,
+                    'details' => $seat->student . ' assigned to seat ' . $seat->row . '-' . $seat->column,
+                ]);
+
                 $this->seats[$seat->row . '-' . $seat->column]->student = $this->editingStudent;
             }
         }
