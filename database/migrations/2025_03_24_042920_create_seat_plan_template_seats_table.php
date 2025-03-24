@@ -54,7 +54,7 @@ return new class extends Migration
             }
         });
 
-        $result = $oneSeatApart->seats()
+        $oneSeatApart->seats()
             ->whereIn('row', [2, 4, 6, 8, 10])
             ->whereIn('column', [1, 3, 5, 7, 9, 11])
             ->update(['is_occupied' => true]);
