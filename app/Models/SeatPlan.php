@@ -39,8 +39,6 @@ class SeatPlan extends Model
         if ($this->template) {
             $occupiedSeats = $this->template->seats()->where('is_occupied', true)->get();
 
-            Log::debug($occupiedSeats->count());
-
             foreach ($occupiedSeats as $seat) {
                 $this->seats()
                     ->where('column', $seat->column)

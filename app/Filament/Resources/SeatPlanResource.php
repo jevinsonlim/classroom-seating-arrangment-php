@@ -54,7 +54,7 @@ class SeatPlanResource extends Resource
                             $set('columns', 10);
                         }
                     })
-                    ->disabled(function (Get $get, string $operation) {
+                    ->disabled(function (string $operation) {
                         return $operation !== 'create';
                     })
                     ->live(),

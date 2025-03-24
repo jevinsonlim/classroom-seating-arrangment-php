@@ -59,20 +59,20 @@ return new class extends Migration
             ->whereIn('column', [1, 3, 5, 7, 9, 11])
             ->update(['is_occupied' => true]);
 
-        Log::debug($result);
-
         $threeColumns->seats()
             ->whereIn('row', [2, 3, 4, 5, 6])
             ->whereIn('column', [2, 3, 5, 6, 8, 9])
             ->update(['is_occupied' => true]);
 
         $uShape->seats()
-            ->where(function($query) {
-                $query->whereBetween('row', [2, 2])
+            ->where(function($query) use ($uShape) {
+                $query->where('seat_plan_template_id', $uShape->id)
+                    ->whereBetween('row', [2, 2])
                     ->whereBetween('column', [3, 14]);
             })
-            ->orWhere(function($query) {
-                $query->whereBetween('row', [3, 11])
+            ->orWhere(function($query) use ($uShape) {
+                $query->where('seat_plan_template_id', $uShape->id)
+                    ->whereBetween('row', [3, 11])
                     ->whereIn('column', [2, 15]);
             })
             ->update(['is_occupied' => true]);

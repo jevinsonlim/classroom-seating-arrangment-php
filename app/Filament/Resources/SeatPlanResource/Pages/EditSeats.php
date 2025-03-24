@@ -15,6 +15,7 @@ use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -227,7 +228,14 @@ class EditSeats extends Page
                             'override' => 'Assign students starting from the first marked seat (vacant or not).',
                             'append' => 'Assign students starting from the first vacant marked seat.',
                         ])
-                        ->default('append')
+                        ->default('append'),
+                    Radio::make('sorting_option')
+                        ->options([
+                            'alphabetical-asc' => 'Alphabetical (A-Z)',
+                            'alphabetical-desc' => 'Alphabetical (Z-A)',
+                            'randomized' => 'Randomized',
+                        ])
+                        ->helperText('Sort the students list before assignment')
                 ])
                 ->action(function (EditSeats $livewire, array $data) {  
                     $studentsList = $data['students_list']->get();
@@ -243,6 +251,9 @@ class EditSeats extends Page
 
                     collect($studentsList)
                         ->filter(fn ($name) => strlen(trim($name)))
+                        ->when($data['sorting_option'] === 'alphabetical-asc', fn (Collection $collection) => $collection->sort()->values())
+                        ->when($data['sorting_option'] === 'alphabetical-desc', fn (Collection $collection) => $collection->sortDesc()->values())
+                        ->when($data['sorting_option'] === 'randomized', fn (Collection $collection) => $collection->shuffle())
                         ->each(function ($name, $index) use ($livewire, $assignableSeats) {
                             $seat = $assignableSeats->slice($index, 1)->first();
 
