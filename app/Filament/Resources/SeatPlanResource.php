@@ -50,6 +50,9 @@ class SeatPlanResource extends Resource
                             $set('columns', 10);
                         }
                     })
+                    ->disabled(function (Get $get, string $operation) {
+                        return $operation !== 'create';
+                    })
                     ->live(),
                 Grid::make()
                     ->schema([
@@ -60,7 +63,7 @@ class SeatPlanResource extends Resource
                             ->default(5)
                             ->disabled(function (Get $get, string $operation) {
                                 if ($operation !== 'create') {
-                                    return false;
+                                    return true;
                                 }
 
                                 return $get('seat_plan_template_id');
@@ -72,7 +75,7 @@ class SeatPlanResource extends Resource
                             ->default(10)
                             ->disabled(function (Get $get, string $operation) {
                                 if ($operation !== 'create') {
-                                    return false;
+                                    return true;
                                 }
 
                                 return $get('seat_plan_template_id');

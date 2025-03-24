@@ -51,7 +51,7 @@ class SeatsRelationManager extends RelationManager
                     ->after(function (Model $record, array $data) {
                         SeatPlanLog::create([
                             'seat_plan_id' => $record->seat_plan_id,
-                            'details' => $record->student . ' assigned to seat ' . $record->row . '-' . $record->column,
+                            'details' => 'Student ' . $record->student . ' assigned to seat ' . $record->row . '-' . $record->column,
                         ]);
                     }),
                 // Tables\Actions\DeleteAction::make(),

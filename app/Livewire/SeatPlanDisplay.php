@@ -108,7 +108,6 @@ class SeatPlanDisplay extends Component implements HasForms
 
     public function editSeat($row, $column)
     {
-        Log::debug($this->seats);
         $key = $row . '-' . $column;
         $seat = $this->seats[$key] ?? null;
 
@@ -131,7 +130,7 @@ class SeatPlanDisplay extends Component implements HasForms
 
             SeatPlanLog::create([
                 'seat_plan_id' => $seat->seat_plan_id,
-                'details' => $studentName . ' removed from seat ' . $seat->row . '-' . $seat->column,
+                'details' => 'Student ' . $studentName . ' removed from seat ' . $seat->row . '-' . $seat->column,
             ]);
 
             $this->seats[$key] = $seat;
@@ -148,13 +147,26 @@ class SeatPlanDisplay extends Component implements HasForms
 
                 SeatPlanLog::create([
                     'seat_plan_id' => $seat->seat_plan_id,
-                    'details' => $seat->student . ' assigned to seat ' . $seat->row . '-' . $seat->column,
+                    'details' => 'Student ' . $seat->student . ' assigned to seat ' . $seat->row . '-' . $seat->column,
                 ]);
 
                 $this->seats[$seat->row . '-' . $seat->column]->student = $this->editingStudent;
             }
         }
         $this->dispatch('close-modal', id: 'edit-seat-modal');
+    }
+
+    public function toggleOccupied($row, $column)
+    {
+        $key = $row . '-' . $column;
+        $seat = $this->seats[$key] ?? null;
+
+        if ($seat) {
+            $seat->is_occupied_on_template = !$seat->is_occupied_on_template;
+            $seat->save();
+
+            $this->seats[$key] = $seat;
+        }
     }
 
     public function form(Form $form): Form

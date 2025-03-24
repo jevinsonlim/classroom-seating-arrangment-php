@@ -7,11 +7,16 @@ use App\Models\Seat;
 use App\Models\SeatPlanLog;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Radio;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class EditSeats extends Page
 {
@@ -197,6 +202,65 @@ class EditSeats extends Page
                 ->icon('heroicon-m-ellipsis-vertical')
                 ->color('primary')
                 ->button(),
+            Action::make('massAssignment')
+                ->label('Mass Assignment')
+                ->color('primary')
+                ->icon('heroicon-m-users')
+                ->form([
+                    Placeholder::make('Instructions:')
+                        ->content(fn (): string => <<<MESSAGE
+                            Please upload a list of students that will be assigned to the seats. Marked seats will be updated first.
+                            Overflow students will be assigned to the first vacant seat.
+                            MESSAGE
+                        ),
+                    FileUpload::make('students_list')
+                        ->acceptedFileTypes(['text/plain'])
+                        ->maxSize(1024)
+                        ->required()
+                        ->storeFiles(false),
+                    Radio::make('update_option')
+                        ->options([
+                            'append' => 'Append',
+                            'override' => 'Override',
+                        ])
+                        ->descriptions([
+                            'override' => 'Assign students starting from the first marked seat (vacant or not).',
+                            'append' => 'Assign students starting from the first vacant marked seat.',
+                        ])
+                        ->default('append')
+                ])
+                ->action(function (EditSeats $livewire, array $data) {  
+                    $studentsList = $data['students_list']->get();
+                    $studentsList = explode("\n", $studentsList);
+                    
+                    $assignableSeats = Seat::where('seat_plan_id', $livewire->record->id)
+                        ->select('id', 'row', 'column')
+                        ->when($data['update_option'] === 'append', fn ($query) => $query->whereNull('student'))
+                        ->orderBy('is_occupied_on_template', 'desc')
+                        ->orderBy('row')
+                        ->orderBy('column')
+                        ->get();
+
+                    collect($studentsList)
+                        ->filter(fn ($name) => strlen(trim($name)))
+                        ->each(function ($name, $index) use ($livewire, $assignableSeats) {
+                            $seat = $assignableSeats->slice($index, 1)->first();
+
+                            if (!$seat) {
+                                return;
+                            }
+
+                            $seat->student = $name;
+                            $seat->save();
+
+                            SeatPlanLog::create([
+                                'seat_plan_id' => $livewire->record->id,
+                                'details' => 'Student ' . $name . ' mass assigned to seat ' . $seat->row . '-' . $seat->column
+                            ]);
+                        });
+
+                    $livewire->dispatch('refreshSeats');
+                }),
             Action::make('clearSeats')
                 ->color('danger')
                 ->requiresConfirmation()

@@ -54,11 +54,17 @@
                         <span style="font-size: {{ strlen($seat->student ?? '') > 7 ? '12px' : '16px' }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             {{ $seat->student ?? '' }}
                         </span>
-                        @if($seat && $seat->is_occupied_on_template)
-                            <div style="position: absolute; bottom: 6px; left: 6px;">
-                                <x-filament::icon-button icon="heroicon-o-map-pin" size="sm" color="success" disabled/>
-                            </div>
-                        @endif
+
+                        <div style="position: absolute; bottom: 6px; left: 6px;" title="Mark or unmark a seat as part of template. Marked seats will be assigned first during student mass assignment.">
+                            @if($seat)
+                                @if($seat->is_occupied_on_template)
+                                    <x-filament::icon-button icon="heroicon-s-map-pin" size="sm" color="info" wire:click.stop="toggleOccupied({{ $row }}, {{ $column }})"/>
+                                @else
+                                    <x-filament::icon-button icon="heroicon-o-map-pin" size="sm" color="info" wire:click.stop="toggleOccupied({{ $row }}, {{ $column }})"/>
+                                @endif
+                            @endif
+                        </div>
+
                         <div style="position: absolute; bottom: 6px; right: 6px; font-size: 12px; color: gray;">
                             {{ $row }}-{{ $column }}
                         </div>
