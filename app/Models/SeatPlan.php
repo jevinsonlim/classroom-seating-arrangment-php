@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Log;
 
 class SeatPlan extends Model
 {
@@ -37,6 +38,8 @@ class SeatPlan extends Model
 
         if ($this->template) {
             $occupiedSeats = $this->template->seats()->where('is_occupied', true)->get();
+
+            Log::debug($occupiedSeats->count());
 
             foreach ($occupiedSeats as $seat) {
                 $this->seats()

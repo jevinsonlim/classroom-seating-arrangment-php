@@ -9,7 +9,7 @@ class SeatPlanTemplate extends Model
 {
     public function seats(): HasMany
     {
-        return $this->hasMany(SeatPlanTemplateSeat::class);
+        return $this->hasMany(SeatPlanTemplateSeat::class, 'seat_plan_template_id', 'id');
     }
 
     public function seatPlans(): HasMany

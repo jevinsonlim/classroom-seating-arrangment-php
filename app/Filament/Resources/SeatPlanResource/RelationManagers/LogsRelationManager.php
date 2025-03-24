@@ -53,7 +53,9 @@ class LogsRelationManager extends RelationManager
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->emptyStateHeading('No history entry yet')
+            ->emptyStateDescription('');
     }
 
     public function isReadOnly(): bool

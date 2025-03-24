@@ -3,6 +3,7 @@
 use App\Models\SeatPlanTemplate;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -53,10 +54,12 @@ return new class extends Migration
             }
         });
 
-        $oneSeatApart->seats()
+        $result = $oneSeatApart->seats()
             ->whereIn('row', [2, 4, 6, 8, 10])
             ->whereIn('column', [1, 3, 5, 7, 9, 11])
             ->update(['is_occupied' => true]);
+
+        Log::debug($result);
 
         $threeColumns->seats()
             ->whereIn('row', [2, 3, 4, 5, 6])

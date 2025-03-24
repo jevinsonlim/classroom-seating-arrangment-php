@@ -199,7 +199,7 @@ class EditSeats extends Page
                     }),
             ])
                 ->label('Edit capacity')
-                ->icon('heroicon-m-ellipsis-vertical')
+                ->icon('heroicon-m-arrows-pointing-out')
                 ->color('primary')
                 ->button(),
             Action::make('massAssignment')

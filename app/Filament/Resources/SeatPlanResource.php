@@ -34,10 +34,14 @@ class SeatPlanResource extends Resource
             ->schema([
                 Forms\Components\Select::make('section_id')
                     ->relationship('section', 'name')
-                    ->required(),
+                    ->required()
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\TextInput::make('subject')
                     ->required(),
                 Forms\Components\Select::make('seat_plan_template_id')
+                    ->searchable()
+                    ->preload()
                     ->relationship('template', 'name')
                     ->afterStateUpdated(function (Set $set, $state) {
                         if ($state) {
