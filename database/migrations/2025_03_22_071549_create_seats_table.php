@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('seat_plan_id')
                 ->references('id')
-                ->on('sections')
+                ->on('seat_plans')
                 ->cascadeOnDelete();
             $table->string('student')->nullable();
             $table->integer('row');
