@@ -8,8 +8,12 @@ use App\Filament\Resources\SeatPlanResource\RelationManagers;
 use App\Filament\Resources\SeatPlanResource\RelationManagers\LogsRelationManager;
 use App\Filament\Resources\SeatPlanResource\RelationManagers\SeatsRelationManager;
 use App\Models\SeatPlan;
+use App\Models\SeatPlanTemplate;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -33,19 +37,48 @@ class SeatPlanResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('subject')
                     ->required(),
-                Forms\Components\TextInput::make('rows')
-                    ->required()
-                    ->numeric()
-                    ->minValue(1)
-                    ->default(5)
-                    ->disabledOn('edit'),
-                Forms\Components\TextInput::make('columns')
-                    ->required()
-                    ->numeric()
-                    ->minValue(1)
-                    ->default(10)
-                    ->disabledOn('edit'),
-                
+                Forms\Components\Select::make('seat_plan_template_id')
+                    ->relationship('template', 'name')
+                    ->afterStateUpdated(function (Set $set, $state) {
+                        if ($state) {
+                            $template = SeatPlanTemplate::find($state);
+
+                            $set('rows', $template->rows);
+                            $set('columns', $template->columns);
+                        } else {
+                            $set('rows', 5);
+                            $set('columns', 10);
+                        }
+                    })
+                    ->live(),
+                Grid::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('rows')
+                            ->required()
+                            ->numeric()
+                            ->minValue(1)
+                            ->default(5)
+                            ->disabled(function (Get $get, string $operation) {
+                                if ($operation !== 'create') {
+                                    return false;
+                                }
+
+                                return $get('seat_plan_template_id');
+                            }),
+                        Forms\Components\TextInput::make('columns')
+                            ->required()
+                            ->numeric()
+                            ->minValue(1)
+                            ->default(10)
+                            ->disabled(function (Get $get, string $operation) {
+                                if ($operation !== 'create') {
+                                    return false;
+                                }
+
+                                return $get('seat_plan_template_id');
+                            }),
+                    ])
+
             ]);
     }
 
@@ -83,7 +116,7 @@ class SeatPlanResource extends Resource
                     ->label('Edit details'),
                 Tables\Actions\Action::make('edit-seats')
                     ->icon('heroicon-m-cursor-arrow-rays')
-                    ->url(fn (SeatPlan $record): string => EditSeats::getUrl(['record' => $record]))
+                    ->url(fn(SeatPlan $record): string => EditSeats::getUrl(['record' => $record]))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

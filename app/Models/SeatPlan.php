@@ -24,7 +24,7 @@ class SeatPlan extends Model
     }
 
 
-    public function prepopulateSeats($template = null): void
+    public function prepopulateSeats(): void
     {
         for ($i=1; $i <= $this->rows; $i++) { 
             for ($j=1; $j <= $this->columns; $j++) { 
@@ -34,5 +34,21 @@ class SeatPlan extends Model
                 ]);
             }
         }
+
+        if ($this->template) {
+            $occupiedSeats = $this->template->seats()->where('is_occupied', true)->get();
+
+            foreach ($occupiedSeats as $seat) {
+                $this->seats()
+                    ->where('column', $seat->column)
+                    ->where('row', $seat->row)
+                    ->update(['is_occupied_on_template' => true]);
+            }
+        }
+    }
+
+    public function template(): BelongsTo
+    {
+        return $this->belongsTo(SeatPlanTemplate::class,  'seat_plan_template_id');
     }
 }
