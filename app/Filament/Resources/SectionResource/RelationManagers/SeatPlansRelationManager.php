@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\SectionResource\RelationManagers;
 
+use App\Filament\Resources\SeatPlanResource;
 use App\Filament\Resources\SeatPlanResource\Pages\EditSeatPlan;
 use App\Filament\Resources\SeatPlanResource\Pages\EditSeats;
 use App\Models\SeatPlan;
+use App\Models\SeatPlanTemplate;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
@@ -22,22 +24,7 @@ class SeatPlansRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('subject')
-                    ->required()
-                    ->maxLength(255),
-                Grid::make(2)->schema([
-                    Forms\Components\TextInput::make('rows')
-                        ->required()
-                        ->minValue(1)
-                        ->default(5),
-                    Forms\Components\TextInput::make('columns')
-                        ->required()
-                        ->minValue(1)
-                        ->default(10),
-                ])
-            ]);
+        return SeatPlanResource::form($form);        
     }
 
     public function table(Table $table): Table
@@ -53,6 +40,13 @@ class SeatPlansRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->using(function (array $data, string $model): Model {
+                        if ($data['seat_plan_template_id']) {
+                            $template = SeatPlanTemplate::find($data['seat_plan_template_id']);
+                
+                            $data['rows'] = $template->rows;
+                            $data['columns'] = $template->columns;
+                        }
+
                         $record = $model::create([
                             ...$data,
                             'section_id' => $this->getOwnerRecord()->id

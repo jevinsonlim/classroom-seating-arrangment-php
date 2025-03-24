@@ -24,12 +24,12 @@ class SeatPlan extends Model
         return $this->hasMany(SeatPlanLog::class);
     }
 
-
     public function prepopulateSeats(): void
     {
         for ($i=1; $i <= $this->rows; $i++) { 
             for ($j=1; $j <= $this->columns; $j++) { 
-                $seat = $this->seats()->create([
+                $seat = Seat::create([
+                    'seat_plan_id' => $this->id,
                     'row' => $i,
                     'column' => $j,
                 ]);
@@ -40,7 +40,8 @@ class SeatPlan extends Model
             $occupiedSeats = $this->template->seats()->where('is_occupied', true)->get();
 
             foreach ($occupiedSeats as $seat) {
-                $this->seats()
+                Seat::query()
+                    ->where('seat_plan_id', $this->id)
                     ->where('column', $seat->column)
                     ->where('row', $seat->row)
                     ->update(['is_occupied_on_template' => true]);
