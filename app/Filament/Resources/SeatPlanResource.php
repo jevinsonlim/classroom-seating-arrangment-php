@@ -19,6 +19,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Gate;
 
 class SeatPlanResource extends Resource
 {
@@ -124,6 +125,7 @@ class SeatPlanResource extends Resource
                 Tables\Actions\Action::make('edit-seats')
                     ->icon('heroicon-m-cursor-arrow-rays')
                     ->url(fn(SeatPlan $record): string => EditSeats::getUrl(['record' => $record]))
+                    ->visible(fn (SeatPlan $record): bool => Gate::allows('update', $record)),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -146,6 +148,7 @@ class SeatPlanResource extends Resource
             'index' => Pages\ListSeatPlans::route('/'),
             'create' => Pages\CreateSeatPlan::route('/create'),
             'edit' => Pages\EditSeatPlan::route('/{record}/edit'),
+            'view' => Pages\ViewSeatPlan::route('/{record}'),
             'edit-seats' => Pages\EditSeats::route('/{record}/edit-seats'),
         ];
     }

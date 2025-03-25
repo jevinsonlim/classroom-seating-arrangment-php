@@ -49,7 +49,8 @@ class SeatPlansRelationManager extends RelationManager
 
                         $record = $model::create([
                             ...$data,
-                            'section_id' => $this->getOwnerRecord()->id
+                            'section_id' => $this->getOwnerRecord()->id,
+                            'user_id' => auth()->user()->id
                         ]);
 
                         $record->prepopulateSeats();

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SeatPlanResource\Pages;
 
+use App\Filament\Actions\DownloadSeatPlanAction;
 use App\Filament\Resources\SeatPlanResource;
 use App\Models\Seat;
 use App\Models\SeatPlanLog;
@@ -32,6 +33,8 @@ class EditSeats extends Page
         return [
             Action::make('edit-details')
                 ->label('Edit details')
+                ->hiddenLabel()
+                ->tooltip('Edit details')
                 ->icon('heroicon-m-pencil-square')
                 ->url(fn(Model $record): string => EditSeatPlan::getUrl(['record' => $record])),
             ActionGroup::make([
@@ -200,13 +203,17 @@ class EditSeats extends Page
                     }),
             ])
                 ->label('Edit capacity')
+                ->hiddenLabel()
+                ->tooltip('Edit capacity')
                 ->icon('heroicon-m-arrows-pointing-out')
                 ->color('primary')
                 ->button(),
             Action::make('massAssignment')
                 ->label('Mass Assignment')
+                ->hiddenLabel()
+                ->tooltip('Mass Assignment')
                 ->color('primary')
-                ->icon('heroicon-m-users')
+                ->icon('heroicon-m-arrow-up-on-square-stack')
                 ->form([
                     Placeholder::make('Instructions:')
                         ->content(fn (): string => <<<MESSAGE
@@ -272,8 +279,15 @@ class EditSeats extends Page
 
                     $livewire->dispatch('refreshSeats');
                 }),
+            DownloadSeatPlanAction::make()
+                ->record($this->getRecord())
+                ->hiddenLabel()
+                ->tooltip('Download Seat Plan'), 
             Action::make('clearSeats')
                 ->color('danger')
+                ->icon('heroicon-m-document-minus')
+                ->hiddenLabel()
+                ->tooltip('Clear Seats')
                 ->requiresConfirmation()
                 ->action(function (EditSeats $livewire) {
                     $livewire->record->seats()->update(['student' => null]);

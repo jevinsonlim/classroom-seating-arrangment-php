@@ -26,6 +26,13 @@ class CreateSeatPlan extends CreateRecord
             $data['columns'] = $template->columns;
         }
 
+        $data['user_id'] = auth()->user()->id;
+
         return $data;
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return EditSeatPlan::getUrl(['record' => $this->getRecord()]);
     }
 }
