@@ -8,17 +8,15 @@ use App\Models\Seat;
 use App\Models\SeatPlanLog;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class EditSeats extends Page
 {
@@ -277,6 +275,11 @@ class EditSeats extends Page
                             ]);
                         });
 
+                    Notification::make()
+                        ->title('Students list assigned successfully')
+                        ->success()
+                        ->send();
+
                     $livewire->dispatch('refreshSeats');
                 }),
             DownloadSeatPlanAction::make()
@@ -296,6 +299,11 @@ class EditSeats extends Page
                         'seat_plan_id' => $livewire->record->id,
                         'details' => 'All seats were cleared'
                     ]);
+
+                    Notification::make()
+                        ->title('Seats cleared')
+                        ->success()
+                        ->send();
 
                     $livewire->dispatch('refreshSeats');
                 }),
